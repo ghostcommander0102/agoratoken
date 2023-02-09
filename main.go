@@ -2,8 +2,10 @@ package main
 
 import (
   "log"
-  "os"
-
+//   "os"
+  "strconv"
+  "fmt"
+  "time"
   "github.com/AgoraIO-Community/go-tokenbuilder/rtctokenbuilder"
   "github.com/gin-gonic/gin"
 )
@@ -12,15 +14,15 @@ var appID, appCertificate string
 
 func main() {
 
-  appIDEnv, appIDExists := os.LookupEnv("296422d984924ea89eb6cfbc46360534")
-  appCertEnv, appCertExists := os.LookupEnv("1343a873a6214de1a79a45c24db29804")
+//   appIDEnv, appIDExists := os.LookupEnv("296422d984924ea89eb6cfbc46360534")
+//   appCertEnv, appCertExists := os.LookupEnv("1343a873a6214de1a79a45c24db29804")
 
-  if !appIDExists || !appCertExists {
-    log.Fatal("FATAL ERROR: ENV not properly configured, check APP_ID and APP_CERTIFICATE")
-  } else {
-    appID = appIDEnv
-    appCertificate = appCertEnv
-  }
+//   if !appIDExists || !appCertExists {
+//     log.Fatal("FATAL ERROR: ENV not properly configured, check APP_ID and APP_CERTIFICATE")
+//   } else {
+    appID = "296422d984924ea89eb6cfbc46360534"
+    appCertificate = "1343a873a6214de1a79a45c24db29804"
+//   }
 
   api := gin.Default()
 
@@ -70,78 +72,78 @@ func getRtcToken(c *gin.Context) {
 }
 
 func getRtmToken(c *gin.Context) {
-	log.Printf("rtm token\n")
-	// get param values
-	uidStr, expireTimestamp, err := parseRtmParams(c)
+	// log.Printf("rtm token\n")
+	// // get param values
+	// uidStr, expireTimestamp, err := parseRtmParams(c)
   
-	if err != nil {
-	  c.Error(err)
-	  c.AbortWithStatusJSON(400, gin.H{
-		"message": "Error Generating RTC token: " + err.Error(),
-		"status":  400,
-	  })
-	  return
-	}
+	// if err != nil {
+	//   c.Error(err)
+	//   c.AbortWithStatusJSON(400, gin.H{
+	// 	"message": "Error Generating RTC token: " + err.Error(),
+	// 	"status":  400,
+	//   })
+	//   return
+	// }
   
-	rtmToken, tokenErr := rtmtokenbuilder.BuildToken(appID, appCertificate, uidStr, rtmtokenbuilder.RoleRtmUser, expireTimestamp)
+	// rtmToken, tokenErr := rtmtokenbuilder.BuildToken(appID, appCertificate, uidStr, rtmtokenbuilder.RoleRtmUser, expireTimestamp)
   
-	if tokenErr != nil {
-	  log.Println(err) // token failed to generate
-	  c.Error(err)
-	  errMsg := "Error Generating RTM token: " + tokenErr.Error()
-	  c.AbortWithStatusJSON(400, gin.H{
-		"error":  errMsg,
-		"status": 400,
-	  })
-	} else {
-	  log.Println("RTM Token generated")
-	  c.JSON(200, gin.H{
-		"rtmToken": rtmToken,
-	  })
-	}
+	// if tokenErr != nil {
+	//   log.Println(err) // token failed to generate
+	//   c.Error(err)
+	//   errMsg := "Error Generating RTM token: " + tokenErr.Error()
+	//   c.AbortWithStatusJSON(400, gin.H{
+	// 	"error":  errMsg,
+	// 	"status": 400,
+	//   })
+	// } else {
+	//   log.Println("RTM Token generated")
+	//   c.JSON(200, gin.H{
+	// 	"rtmToken": rtmToken,
+	//   })
+	// }
 }
 
 func getBothTokens(c *gin.Context) {
-	log.Printf("dual token\n")
-	// get rtc param values
-	channelName, tokentype, uidStr, role, expireTimestamp, rtcParamErr := parseRtcParams(c)
+	// log.Printf("dual token\n")
+	// // get rtc param values
+	// channelName, tokentype, uidStr, role, expireTimestamp, rtcParamErr := parseRtcParams(c)
   
-	if rtcParamErr != nil {
-	  c.Error(rtcParamErr)
-	  c.AbortWithStatusJSON(400, gin.H{
-		"message": "Error Generating RTC token: " + rtcParamErr.Error(),
-		"status":  400,
-	  })
-	  return
-	}
-	// generate the rtcToken
-	rtcToken, rtcTokenErr := generateRtcToken(channelName, uidStr, tokentype, role, expireTimestamp)
-	// generate rtmToken
-	rtmToken, rtmTokenErr := rtmtokenbuilder.BuildToken(appID, appCertificate, uidStr, rtmtokenbuilder.RoleRtmUser, expireTimestamp)
+	// if rtcParamErr != nil {
+	//   c.Error(rtcParamErr)
+	//   c.AbortWithStatusJSON(400, gin.H{
+	// 	"message": "Error Generating RTC token: " + rtcParamErr.Error(),
+	// 	"status":  400,
+	//   })
+	//   return
+	// }
+	// // generate the rtcToken
+	// rtcToken, rtcTokenErr := generateRtcToken(channelName, uidStr, tokentype, role, expireTimestamp)
+	// // generate rtmToken
+	// rtmToken, rtmTokenErr := rtmtokenbuilder.BuildToken(appID, appCertificate, uidStr, rtmtokenbuilder.RoleRtmUser, expireTimestamp)
   
-	if rtcTokenErr != nil {
-	  log.Println(rtcTokenErr) // token failed to generate
-	  c.Error(rtcTokenErr)
-	  errMsg := "Error Generating RTC token - " + rtcTokenErr.Error()
-	  c.AbortWithStatusJSON(400, gin.H{
-		"status": 400,
-		"error":  errMsg,
-	  })
-	} else if rtmTokenErr != nil {
-	  log.Println(rtmTokenErr) // token failed to generate
-	  c.Error(rtmTokenErr)
-	  errMsg := "Error Generating RTC token - " + rtmTokenErr.Error()
-	  c.AbortWithStatusJSON(400, gin.H{
-		"status": 400,
-		"error":  errMsg,
-	  })
-	} else {
-	  log.Println("RTC Token generated")
-	  c.JSON(200, gin.H{
-		"rtcToken": rtcToken,
-		"rtmToken": rtmToken,
-	  })
-	}  
+	// if rtcTokenErr != nil {
+	//   log.Println(rtcTokenErr) // token failed to generate
+	//   c.Error(rtcTokenErr)
+	//   errMsg := "Error Generating RTC token - " + rtcTokenErr.Error()
+	//   c.AbortWithStatusJSON(400, gin.H{
+	// 	"status": 400,
+	// 	"error":  errMsg,
+	//   })
+	// } else if rtmTokenErr != nil {
+	//   log.Println(rtmTokenErr) // token failed to generate
+	//   c.Error(rtmTokenErr)
+	//   errMsg := "Error Generating RTC token - " + rtmTokenErr.Error()
+	//   c.AbortWithStatusJSON(400, gin.H{
+	// 	"status": 400,
+	// 	"error":  errMsg,
+	//   })
+	// } else {
+	//   log.Println("RTC Token generated")
+	//   c.JSON(200, gin.H{
+	// 	"rtcToken": rtcToken,
+	// 	"rtmToken": rtmToken,
+	//   })
+	// }  
 }
 
 func parseRtcParams(c *gin.Context) (channelName, tokentype, uidStr string, role rtctokenbuilder.Role, expireTimestamp uint32, err error) {
@@ -175,20 +177,20 @@ func parseRtcParams(c *gin.Context) (channelName, tokentype, uidStr string, role
 func parseRtmParams(c *gin.Context) (uidStr string, expireTimestamp uint32, err error) {
 	// get param values
 	uidStr = c.Param("uid")
-	expireTime := c.DefaultQuery("expiry", "3600")
+	// expireTime := c.DefaultQuery("expiry", "3600")
   
-	expireTime64, parseErr := strconv.ParseUint(expireTime, 10, 64)
-	if parseErr != nil {
-	  // if string conversion fails return an error
-	  err = fmt.Errorf("failed to parse expireTime: %s, causing error: %s", expireTime, parseErr)
-	}
+	// expireTime64, parseErr := strconv.ParseUint(expireTime, 10, 64)
+	// if parseErr != nil {
+	//   // if string conversion fails return an error
+	//   err = fmt.Errorf("failed to parse expireTime: %s, causing error: %s", expireTime, parseErr)
+	// }
   
-	// set timestamps
-	expireTimeInSeconds := uint32(expireTime64)
-	currentTimestamp := uint32(time.Now().UTC().Unix())
-	expireTimestamp = currentTimestamp + expireTimeInSeconds
+	// // set timestamps
+	// expireTimeInSeconds := uint32(expireTime64)
+	// currentTimestamp := uint32(time.Now().UTC().Unix())
+	// expireTimestamp = currentTimestamp + expireTimeInSeconds
   
-	// check if string conversion fails
+	// // check if string conversion fails
 	return uidStr, expireTimestamp, err
 }
 
