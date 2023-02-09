@@ -36,7 +36,7 @@ func main() {
   api.GET("rtm/:uid/", getRtmToken)
   api.GET("rte/:channelName/:role/:tokenType/:uid/", getBothTokens)
 
-  api.Run(":8080")
+  api.Run(":80")
 }
 
 func getRtcToken(c *gin.Context) {
