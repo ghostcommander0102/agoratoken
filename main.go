@@ -32,7 +32,7 @@ func main() {
     })
   })
 
-  api.GET("rtc/:channelName/:role/:tokenType/:uid/", getRtcToken)
+  api.GET("rtc/:channelName/:role/:tokentype/:uid/", getRtcToken)
   api.GET("rtm/:uid/", getRtmToken)
   api.GET("rte/:channelName/:role/:tokenType/:uid/", getBothTokens)
 
